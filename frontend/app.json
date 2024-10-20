@@ -24,14 +24,7 @@
       "package": "com.anonymous.wineapp"
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
       "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-    ],
-    "experiments": {
-      "typedRoutes": true
     }
   }
 }
