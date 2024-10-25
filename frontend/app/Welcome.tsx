@@ -1,57 +1,77 @@
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, TextInput, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
 	GoogleSignin,
 	GoogleSigninButton,
 	isSuccessResponse,
+	SignInResponse,
 	statusCodes,
 } from "@react-native-google-signin/google-signin";
 
 const Welcome = () => {
-	// TODO: Call GoogleSignin.configure before we can call signIn
+	const [error, setError] = useState<unknown | string>("");
+	const [userInfo, setUserInfo] = useState<SignInResponse | null>(null);
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 
-	// GoogleSignin.configure({
-	// 	webClientId:
-	// 		"829878053442-ova9ee97ss1tp0mhd2i8u72ga9usi11d.apps.googleusercontent.com",
-	// });
+	// TODO: Call GoogleSignin.configure before we can call signIn
+	const configureGoogleSignIn = () => {
+		GoogleSignin.configure({
+			webClientId: "945545095865-j5d7hl1qiq2daq4toe65qlh6ae73kte7.apps.googleusercontent.com",
+			iosClientId: "945545095865-buuue4rntop7sjuun58fu0e8qkfn9idq.apps.googleusercontent.com"
+		});
+	};
+
+	useEffect(() => {
+		configureGoogleSignIn();
+	});
 
 	// Somewhere in your code
 	const signIn = async () => {
 		try {
-			await GoogleSignin.hasPlayServices();
-			const response = await GoogleSignin.signIn();
-			if (isSuccessResponse(response)) {
-				// setState({ userInfo: response.data });
+			console.log("pressed sign in ")
+			const userInfo = await GoogleSignin.signIn();
+			console.log(JSON.stringify(userInfo,null,2))
+			if (isSuccessResponse(userInfo)) {
+				setUserInfo(userInfo);
 			} else {
-				// sign in was cancelled by user
+				setError("error with response");
 			}
 		} catch (error) {
-			if (true) {
-				//   if (isErrorWithCode(error)) {
-				// 	switch (error.code) {
-				// 	  case statusCodes.IN_PROGRESS:
-				// 		// operation (eg. sign in) already in progress
-				// 		break;
-				// 	  case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-				// 		// Android only, play services not available or outdated
-				// 		break;
-				// 	  default:
-				// 	  // some other error happened
-				// 	}
-			} else {
-				// an error that's not related to google sign in occurred
+			setError(error)
 			}
-		}
+	}
+
+	const handleLogin = async () => {
+		console.log("handle raw log in button pressed..")
+		// Here you would typically make an API call to verify credentials
+		// For this example, we'll just set a dummy token
+		// await AsyncStorage.setItem("userToken", "dummyToken");
+		// router.replace("/sign-up");
 	};
 
 	return (
 		<SafeAreaView style={styles.container}>
+			<TextInput
+				style={styles.input}
+				placeholder="Username"
+				value={username}
+				onChangeText={setUsername}
+			/>
+			<TextInput
+				style={styles.input}
+				placeholder="Password"
+				value={password}
+				onChangeText={setPassword}
+				secureTextEntry
+			/>
+			<Button title="Login" onPress={handleLogin} />
 			<Text>Sign Up Screen</Text>
-
 			<GoogleSigninButton
 				size={GoogleSigninButton.Size.Wide}
 				color={GoogleSigninButton.Color.Dark}
+				onPress={signIn}
 			/>
 		</SafeAreaView>
 	);
@@ -72,5 +92,12 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		padding: 10,
 		alignItems: "flex-end",
+	},
+	input: {
+		height: 40,
+		borderColor: "gray",
+		borderWidth: 1,
+		marginBottom: 5,
+		paddingHorizontal: 10,
 	},
 });
