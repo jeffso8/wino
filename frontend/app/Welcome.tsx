@@ -9,7 +9,9 @@ import {
 	statusCodes,
 } from "@react-native-google-signin/google-signin";
 
-const Welcome = () => {
+const localPort = "http://127.0.0.1:5000"
+
+const Welcome = ( { navigation }) => {
 	const [error, setError] = useState<unknown | string>("");
 	const [userInfo, setUserInfo] = useState<SignInResponse | null>(null);
 	const [username, setUsername] = useState("");
@@ -24,32 +26,61 @@ const Welcome = () => {
 	};
 
 	useEffect(() => {
-		configureGoogleSignIn();
+		configureGoogleSignIn(); 
 	});
 
 	// Somewhere in your code
-	const signIn = async () => {
+	const googleSignInPressedHandler = async () => {
 		try {
-			console.log("pressed sign in ")
+			console.log("pressed sign in... ")
 			const userInfo = await GoogleSignin.signIn();
 			console.log(JSON.stringify(userInfo,null,2))
 			if (isSuccessResponse(userInfo)) {
 				setUserInfo(userInfo);
-			} else {
-				setError("error with response");
-			}
+				 // Send to backend
+				const response = await fetch(`${localPort}/auth/google`, {
+					method: "POST",
+					headers: {
+							"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ userInfo })
+				});
+
+				if (!response.ok) {
+						throw new Error("Failed to authenticate");
+				}
+
+				const result = await response.json();
+				} else {
+					setError("error with response");
+				}
 		} catch (error) {
+			console.log("error captured from attempted sign in..: ", error)
 			setError(error)
-			}
+		}
 	}
 
 	const handleLogin = async () => {
 		console.log("handle raw log in button pressed..")
-		// Here you would typically make an API call to verify credentials
-		// For this example, we'll just set a dummy token
-		// await AsyncStorage.setItem("userToken", "dummyToken");
-		// router.replace("/sign-up");
-	};
+		let data = {
+				"username": username,
+				"password": password
+			}
+		
+		const response = await fetch(`${localPort}/create_users`, {
+			method: "POST",
+			headers: {
+					"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ data })
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to authenticate");
+		}
+
+	}
+
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -66,13 +97,14 @@ const Welcome = () => {
 				onChangeText={setPassword}
 				secureTextEntry
 			/>
-			<Button title="Login" onPress={handleLogin} />
 			<Text>Sign Up Screen</Text>
+			<Button title="Sign In" onPress={handleLogin} />
 			<GoogleSigninButton
 				size={GoogleSigninButton.Size.Wide}
 				color={GoogleSigninButton.Color.Dark}
-				onPress={signIn}
+				onPress={googleSignInPressedHandler}
 			/>
+			<Button title="Sign Up" onPress={() => navigation.navigate('SignUpDetails')} />
 		</SafeAreaView>
 	);
 };

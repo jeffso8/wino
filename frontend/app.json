@@ -12,20 +12,16 @@
       "backgroundColor": "#ffffff"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin"
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.945545095865-buuue4rntop7sjuun58fu0e8qkfn9idq"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.wineapp",
-      "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.945545095865-buuue4rntop7sjuun58fu0e8qkfn9idq"
-            ]
-          }
-        ]
-      }
+      "bundleIdentifier": "com.anonymous.wineapp"
     },
     "android": {
       "adaptiveIcon": {
